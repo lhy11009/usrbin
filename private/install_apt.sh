@@ -10,6 +10,11 @@ catalog(){
     eval "sudo apt-key exportall > ${temp_dir}/Repo.keys"
 }
 
+## get the catalog
+get_catalog(){
+	eval "scp -r $1:~/install_temp ~/"
+}
+
 ##  Reinstall now
 reinstall(){
     [[ -d $1 ]] || { echo "$1 must be a existing directory"; exit 1; }
@@ -51,11 +56,15 @@ main(){
         catalog
     elif [[ "$1" = "reinstall" ]]; then
         # example usage:
-        reinstall
+        reinstall "$2"
     elif [[ "$1" = "back_up" ]]; then
         back_up
     elif [[ "$1" = "recover" ]]; then
         recover
+    elif [[ "$1" = "get_catalog" ]]; then
+	    # example usage:
+	    # 	./install_apt.sh get_catalog lochy@192.168.0.11	
+	    get_catalog "$2"
     fi
     return 0
 }
