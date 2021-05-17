@@ -1,39 +1,168 @@
 #!/bin/bash
-#lhy 20180308
-#connect server
-#server name: p300, gd1, gd2
-#usage ./this_file + server name
 
-shdir=$( dirname $0 ) #standard get location
-src_server="$shdir/../source_d/server"
 
-if [ ! $# == 1 ]; then
-	echo "usage: ./this_file + server name"
-	exit
+################################################################################
+# connent to and transform with server
+#
+# Dependencies:
+#    env:
+#       UsrBinDir
+#
+# Example Usage:
+#    show available options:
+#        
+#    connect to server:
+#        ./bash_scripts/server_new.sh connect ucd
+#    show available options:
+#       ./bash_scripts/server_new.sh show_available
+#    transfer files with server:
+#       ./bash_scripts/server_new.sh trans ucd -d 1
+#           -d: 0 (both direction)
+#               1 (from server)
+#               TODO: --delete doesn't work
+#
+########################################################
+########################
+
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
+source "${UsrBinDIR}/bash_scripts/utilities.sh"
+SERVER_LIST="${UsrBinDIR}/etc/server/server"
+LOCAL_FILE_LIST="${UsrBinDIR}/etc/local_file_list"
+
+
+parse_options(){
+    data_direction="0"
+    ###
+    # parse options
+    ###
+    while [ -n "$1" ]; do
+      param="$1"
+      case $param in
+        -h|--help)
+          usage  # help information
+          exit 0
+        ;;
+        -d|--direction)
+          shift  # direction for transforming data
+          data_direction="$1"
+        ;;
+      esac
+      shift
+    done
+}
+
+connect(){
+    ###
+    # Connect to a server
+    # Inputs:
+    #   $1: name of server
+    ###
+    # get user name and address
+    local server_uname_addr=$(eval "awk '{ if(\$1 == \"${1}\") print \$2;}' $SERVER_LIST")
+    [[ -n "${server_uname_addr}" ]] || { cecho "${BAD}" "no info recorded with server: $1"; exit 1; }
+    # connect via ssh
+    ssh -X "${server_uname_addr}"
+    return 0
+}
+
+
+show_available(){
+    ###
+    # show available options for servers
+    ###
+    # get user name and address
+    cat "$SERVER_LIST"
+    return 0
+}
+
+
+transfer_all(){
+    ###
+    # transfer file with a server
+    # Inputs:
+    #   $1: name of server
+    #   $2: data direction (0, 1, 2)
+    ###
+    # read server info
+    local server_uname_addr=$(eval "awk '{ if(\$1 == \"${1}\") print \$2;}' $SERVER_LIST")
+    [[ -n "${server_uname_addr}" ]] || { cecho "${BAD}" "no info recorded with server: $1"; exit 1; }
+    # read local file list
+    local dir_names=($(eval "awk '{print \$1}' $LOCAL_FILE_LIST"))
+    local local_dirs=($(eval "awk '{print \$2}' $LOCAL_FILE_LIST"))
+    # transfer
+    local remote_file_list="${UsrBinDIR}/etc/server/$1_file_list"
+    local flags="-avur --progress"
+    local del_flag="--delete --force"  # delete extranous file and folderes in receiver
+    for dirname in ${dir_names[@]}; do
+        local_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $LOCAL_FILE_LIST")
+        remote_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $remote_file_list")
+        if [[ "$2" = "0" ]]; then
+            # remote to local
+            local _source="${server_uname_addr}:${remote_dir}"
+            local target="${local_dir}"
+            echo "rsync ${flags} ${_source}/* ${target}/"
+            eval "rsync ${flags} ${_source}/* ${target}/"
+            # local to remote
+            local _source="${local_dir}"
+            local target="${server_uname_addr}:${remote_dir}"
+            echo "rsync ${flags} ${_source}/* ${target}/"
+            eval "rsync ${flags} ${_source}/* ${target}/"
+        elif [[ "$2" = "1" ]]; then
+            # remote to local, delete extranous
+            local _source="${server_uname_addr}:${remote_dir}"
+            local target="${local_dir}"
+            echo "rsync ${flags} ${del_flag} ${_source}/* ${target}/"
+            eval "rsync ${flags} ${del_flag} ${_source}/* ${target}/"
+        fi
+    done
+
+    # local folder_names=$(eval "awk '{print \$1}' $SERVER_LIST")
+    # TODO: modify from server_trans.sh
+}
+
+
+main(){
+    ###
+    # main function
+    ###
+    if [[ "$1" = "connect" ]]; then
+        ##
+        # connect to a server
+        # Innputs:
+        # $2: server name
+        ##
+        shift
+        server_name="$1"
+        connect "$server_name"
+    elif [[ "$1" = "show_available" ]]; then
+        show_available
+    elif [[ "$1" = "trans" ]]; then
+        shift
+        server_name="$1"; shift
+        parse_options "$@"
+        transfer_all "$server_name" "$data_direction"
+    else
+	    cecho "${BAD}" "option ${1} is not valid\n"
+    fi
+}
+
+set +a  # return to default setting
+
+##
+# if this is call upon in terminal, the main function is executed
+##
+if [[ "${BASH_SOURCE[0]}" = "$0" ]]; then
+	main $@
 fi
 
-source $src_server
+## notes
 
-if [ $1 == "p300" ]; then
-	ssh -X $p300
-elif [ $1 == "gd1" ]; then
-	ssh -X $gd1
-elif [ $1 == "gd1root" ]; then
-	ssh -X $gd1root
-elif [ $1 == "gd2" ]; then
-	ssh -X $gd2
-elif [ $1 == "gd2root" ]; then
-	ssh -X $gd2root
-elif [ $1 == "wm" ]; then
-	ssh -X $wm
-elif [ $1 == "peloton" ]; then
-	ssh -X $peloton
-elif [ $1 == "ymir" ]; then
-	ssh -X $ymir
-else
-	echo "wrong server name"
-	exit
-fi
+#trouble shooting
+# [[ -n "$2" ]] || { cecho "${BAD}" "no log file given ($2)"; exit 1; }
 
+#debuging output
+# printf "${FUNCNAME[0]}, return_values: ${return_values[@]}\n" # debug
 
-
+# parse options
+        # shift
+        # parse_options() $@
