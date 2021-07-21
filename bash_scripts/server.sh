@@ -61,7 +61,8 @@ connect(){
     local server_uname_addr=$(eval "awk '{ if(\$1 == \"${1}\") print \$2;}' $SERVER_LIST")
     [[ -n "${server_uname_addr}" ]] || { cecho "${BAD}" "no info recorded with server: $1"; exit 1; }
     # connect via ssh
-    ssh -X "${server_uname_addr}"
+    echo "ssh -X ${server_uname_addr}"
+    eval "ssh -X ${server_uname_addr}"
     return 0
 }
 
