@@ -5,13 +5,11 @@
 # help to generate latex essays & documentations
 ################################################################################
 
-dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
-source "${dir}/utilities.sh"  # use utility functions
+source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
 # source the local file list
 host_name=`hostname`
-dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
-[[ -e "${dir}/../files/${host_name}.sh" ]] || { "There is no ${host_name}.sh in the files directory, you need to first creat one"; exit 1; }
-source "${dir}/../files/${host_name}.sh"
+[[ -e "${USRBIN_DIR}/files/${host_name}.sh" ]] || { "There is no ${host_name}.sh in the files directory, you need to first creat one"; exit 1; }
+source "${USRBIN_DIR}/files/${host_name}.sh"
 
 usage(){
   # usage of this script
@@ -88,7 +86,7 @@ document_figure(){
 
 share_figure(){
     ###
-    # copy a figure to share folder, todo
+    # copy a figure to share folder
     # Inputs:
     #    $1: name of a figure
     # Global variables as input:

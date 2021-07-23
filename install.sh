@@ -17,7 +17,6 @@ bin_subdir="${dir}/bin"
 [[ -d "${bin_subdir}" ]] || { echo "create ${bin_subdir}"; mkdir "${bin_subdir}"; }
 # global variables
 prefix="Usr"  # prefix to installed scripts
-bashrc_outputs="" # tests to include in the .bashrc file
 
 usage(){
   # usage of this script
@@ -69,7 +68,8 @@ install(){
     ###
     local dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
     options
-    install_sh
+    local bashrc_outputs="# Environmental variables\nexport USRBIN_DIR=${dir}"  # set an environmental variable to this dir
+    install_sh  # install
     printf "${bashrc_outputs}" >> "${dir}/enable.sh" # output for bashrc
     # screen output
     printf "install.sh: installation is completed\n\
@@ -106,7 +106,7 @@ install_sh(){
         _name="${prefix}_${_name}"
         _path_to="${bin_subdir}/${_name}"
         # copy
-        cp "${_path}" "${_path_to}"
+        eval "ln -s ${_path} ${_path_to}"
         # change mode
         eval "chmod +x ${_path_to}"
         cecho ${GOOD} "${FUNCNAME[0]} ${_path_to} installed"  # screen outputs

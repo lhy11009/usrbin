@@ -10,7 +10,7 @@
 #
 # Example Usage:
 #    show available options:
-#        
+#
 #    connect to server:
 #        ./bash_scripts/server_new.sh connect ucd
 #    show available options:
@@ -24,10 +24,9 @@
 ########################################################
 ########################
 
-dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
-source "${UsrBinDIR}/bash_scripts/utilities.sh"
-SERVER_LIST="${UsrBinDIR}/etc/server/server"
-LOCAL_FILE_LIST="${UsrBinDIR}/etc/local_file_list"
+source "${USRBIN_DIR}/bash_scripts/utilities.sh"
+SERVER_LIST="${USRBIN_DIR}/etc/server/server"
+LOCAL_FILE_LIST="${USRBIN_DIR}/etc/local_file_list"
 
 
 parse_options(){
