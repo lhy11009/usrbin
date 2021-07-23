@@ -122,3 +122,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# executables
+bin/
+
+# configuration
+enable.sh
