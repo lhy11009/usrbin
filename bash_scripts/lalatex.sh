@@ -77,7 +77,7 @@ document_figure(){
     local keys=("FIGURE_PATH" "FIGURE_BASENAME")
     local values=("figures/${file_base}" "${file_name}")
     cecho ${GOOD} "Translating figure.tex file"
-    utilities_tranlate_script "${UsrBinDIR}/files/tex_files/figure.tex" "${target_dir}/figure.tex"
+    utilities_tranlate_script "${USRBIN_DIR}/files/tex_files/figure.tex" "${target_dir}/figure.tex"
     # open up gui for editing
     eval "xdg-open ${target_dir}/figure.tex"
     return 0
