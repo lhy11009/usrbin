@@ -89,6 +89,7 @@ share_figure(){
     # copy a figure to share folder
     # Inputs:
     #    $1: name of a figure
+    #    $2: depth of parental folder(append the name of that in the front)
     # Global variables as input:
     #    SHARED_DIR: a shared directory between pcs
     # Return:
@@ -96,15 +97,26 @@ share_figure(){
     ###
     #SHARED_DIR=''
     [[ -e "${SHARED_DIR}" ]] || { cecho "${BAD}" "no variable named SHARED_DIR is defined previously"; exit 1; }
-    file_path=`readlink -f "$1"`
+    local file_path=`readlink -f "$1"`
+    [[ -n $2 ]] && local depth="$2" || local depth="1"
     [[ -e "${file_path}" ]] || { cecho "${FUNCNAME[0]}, no such file ${file_path}"; exit 1; }
     local dir_name=`dirname "${file_path}"`
-    local dir_base_name=`basename "${dir_name}"`
     local file_name=$(basename "${file_path}")
+    # for loop
+    local dir_base_name=""
+    local dir_name_tmp="${dir_name}"
+    while (( depth > 0 )); do
+        # get the upper lever dirname with each loop
+        local dir_base_name_tmp=`basename "${dir_name_tmp}"`
+        local dir_name_tmp=`dirname "${dir_name_tmp}"`
+        [[ -z ${dir_base_name} ]] && dir_base_name="${dir_base_name_tmp}" || dir_base_name="${dir_base_name_tmp}_${dir_base_name}"
+        ((depth--))
+    done
+    # local dir_base_name=`basename "${dir_name}"`
     local file_copy_path="${SHARED_DIR}/${dir_base_name}_${file_name}"  # use dirname + filename as new file name
-    echo "${file_copy_path}"  # debug
     eval "cp ${file_path} ${file_copy_path}"
-    printf "${FUNCNAME[0]}: new file generated ${file_copy_path}\n" # output
+    [[ -e ${file_copy_path} ]] && cecho "${GOOD}" "${FUNCNAME[0]}: new file generated ${file_copy_path}"\
+|| cecho "$BAD" "${FUNCNAME[0]}: ${file_copy_path} is not generated successfully"# output
 }
 
 
@@ -127,7 +139,7 @@ main(){
         # Inputs:
         # Terninal Outputs
         ##
-        share_figure "$2"
+        share_figure "$2" "$3"
     else
 	cecho "${BAD}" "option ${1} is not valid\n"
     fi
