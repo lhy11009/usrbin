@@ -27,9 +27,11 @@ Dependencies:
 \n\
 Example Usage: \n\
    document a figure: \n\
-     ./bash_scripts/lalatex.sh document_figure \n\
+     Usr_lalatex document_figure \n\
      /home/lochy/ASPECT_PROJECT/TwoDSubduction/non_linear32/eba1_MRf12_iter20_DET/img/CDPT_newton_history.png \n\
-     /home/lochy/Documents/papers/documented_files/TwoDSubduction
+     /home/lochy/Documents/papers/documented_files/TwoDSubduction\n\
+   share a figure: \$3 gives the depth to look for and copy name of parental directory\n\
+     Usr_lalatex share_figure enable.sh 2 \n\
 "
     printf "${_text}"
 
