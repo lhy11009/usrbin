@@ -6,7 +6,7 @@
 #
 # Dependencies:
 #    env:
-#       UsrBinDir
+#       USRBIN_DIR
 #
 # Example Usage:
 #    show available options:
@@ -90,7 +90,7 @@ transfer_all(){
     local dir_names=($(eval "awk '{print \$1}' $LOCAL_FILE_LIST"))
     local local_dirs=($(eval "awk '{print \$2}' $LOCAL_FILE_LIST"))
     # transfer
-    local remote_file_list="${UsrBinDIR}/etc/server/$1_file_list"
+    local remote_file_list="${USRBIN_DIR}/etc/server/$1_file_list"
     local flags="-avur --progress"
     local del_flag="--delete --force"  # delete extranous file and folderes in receiver
     for dirname in ${dir_names[@]}; do
