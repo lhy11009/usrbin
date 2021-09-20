@@ -71,6 +71,7 @@ install(){
     local bashrc_outputs="# Environmental variables\nexport USRBIN_DIR=${dir}"  # set an environmental variable to this dir
     install_sh  # install
     printf "${bashrc_outputs}" >> "${dir}/enable.sh" # output for bashrc
+    # install_3rd  # install 3rd party, future
     # screen output
     printf "install.sh: installation is completed\n\
 Next step: append one-liner to .bashrc:\n\
@@ -113,6 +114,15 @@ install_sh(){
     done
     bashrc_outputs="${bashrc_outputs}\n# aspectLib executables\nexport PATH=\${PATH}:${bin_subdir}"
     return 0
+}
+
+install_3rd(){
+    ###
+    # future
+    ###
+    # download youtube
+    eval "curl -L https://yt-dl.org/downloads/latest/youtube-dl -o ./bin/youtube-dl"
+    eval "sudo chmod a+x bin/youtube-dl"
 }
 
 
