@@ -58,6 +58,8 @@ parse_options(){
 # global variables for log file path
 job_list_path="${HOME}/Documents/Subject/Memo/job_list"
 todo_list_path="${HOME}/Documents/Subject/Memo/todo_list.md"
+journal_dir_path="${HOME}/Documents/Subject/Memo/Journal/"
+journal_template_path="${HOME}/Documents/Subject/Memo/Journal/template.md"
 book_dir="${HOME}/Documents/Subject/Books"
 paper_dir="${HOME}/Documents/Subject/papers"
 
@@ -120,6 +122,18 @@ edit()
     eval "vim ${file_path}"
 }
 
+journal()
+{
+    ###
+    # Edit journal
+    ###
+    [[ -e "${journal_template_path}" ]] || { cecho "${BAD}" "no journal template file (${journal_template_path=})"; exit 1; }
+    local today=$(date +"%b_%d_%Y")
+    local journal_full_path="${journal_dir_path}${today}"
+    echo "opening journal: ${journal_full_path}"
+    [[ -e ${journal_full_path} ]] || eval "cp ${journal_template_path} ${journal_full_path}"
+    eval "vim ${journal_full_path}"
+}
 
 main(){
     ###
@@ -135,11 +149,14 @@ main(){
         # Innputs:
         # Terninal Outputs
         ##
-        parse_options $@
-        restart_all "${appendix}"
+        # parse_options $@
+        help_message="Help message for \"restart\" (todo)"
+        [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || echo "${help_message}"
     elif [[ "${command}" = "edit" ]]; then
         [[ -n "${1}" ]] || { cecho "${BAD}" "no file type given for command \"edit\" ($2)"; exit 1; }
         edit "$1"
+    elif [[ "${command}" = "journal" ]]; then
+        journal
     else
 	    cecho "${BAD}" "option ${1} is not valid\n"
     fi
