@@ -6,7 +6,8 @@
 ################################################################################
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
-source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
+# source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
+source "${UTILITIES_DIR}/bash_scripts/utilities.sh"  # use utility functions
 
 usage(){
   # usage of this script
@@ -84,6 +85,14 @@ restart_all(){
     return 0
 }
 
+terminate_all(){
+    ###
+    # Terminate all applications
+    ###
+    terminate_with_key "google-chrome"
+    return 0
+}
+
 restart_with_key()
 {
     ###
@@ -102,6 +111,22 @@ restart_with_key()
             [[ ${line} =~ "${key}" ]] && { echo "${output}"; eval "nohup ${line} &"; }
         fi
     done < "${file_path}"
+}
+
+terminate_with_key()
+{
+    ###
+    # Terminate with a key word in command
+    # Inputs:
+    #   $1: key word
+    ###
+    [[ -n $1 ]] || { cecho "${BAD}" "need to have a key word"; exit 1; }
+    local return_values=()
+    util_read_job_info_from_ps "${key}"
+    for job_id in ${job_ids[@]}; do
+        [[ ${job_id} =~ ^[0-9]+$ ]] && echo "kill ${job_id}" || { cecho "${BAD}" "previous function doesn't return integar(job id)"; exit 1; }
+    done
+    return 0
 }
 
 edit()
@@ -152,6 +177,8 @@ main(){
         # parse_options $@
         help_message="Help message for \"restart\" (todo)"
         [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || echo "${help_message}"
+    elif [[ "${command}" = "terminate" ]]; then
+        terminate_all
     elif [[ "${command}" = "edit" ]]; then
         [[ -n "${1}" ]] || { cecho "${BAD}" "no file type given for command \"edit\" ($2)"; exit 1; }
         edit "$1"
