@@ -169,14 +169,9 @@ main(){
     if [[ "${command}" = "-h" ]]; then
         usage
     elif [[ "${command}" = "restart" ]]; then
-        ##
         # Restart all applications
-        # Innputs:
-        # Terninal Outputs
-        ##
-        # parse_options $@
         help_message="Help message for \"restart\" (todo)"
-        [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || echo "${help_message}"
+        [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || { echo "${help_message}"; exit 1; }
     elif [[ "${command}" = "terminate" ]]; then
         terminate_all
     elif [[ "${command}" = "edit" ]]; then
