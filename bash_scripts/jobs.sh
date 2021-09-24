@@ -7,7 +7,8 @@
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
 # source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
-source "${UTILITIES_DIR}/bash_scripts/utilities.sh"  # use utility functions
+global_utilities_file="${UTILITIES_DIR}/bash_scripts/utilities.sh"
+[[ -e ${global_utilities_file} ]] && source "${global_utilities_file}" || source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
 
 usage(){
   # usage of this script
@@ -171,7 +172,11 @@ main(){
     elif [[ "${command}" = "restart" ]]; then
         # Restart all applications
         help_message="Help message for \"restart\" (todo)"
-        [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || { echo "${help_message}"; exit 1; }
+	if [[ -n $1 ]]; then
+            [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || { echo "${help_message}"; exit 1; }
+	else
+	    restart_all
+	fi
     elif [[ "${command}" = "terminate" ]]; then
         terminate_all
     elif [[ "${command}" = "edit" ]]; then
