@@ -178,8 +178,9 @@ main(){
         # Restart all applications
         help_message="Help message for \"restart\" (todo)"
 	if [[ -n $1 ]]; then
-            [[ $1 =~ ^[0-9]+$ ]] && restart_all "$1" || { echo "${help_message}"; exit 1; }
+            [[ $1 =~ ^[0-9]+$ ]] && { terminate_all; restart_all "$1"; } || { echo "${help_message}"; exit 1; }
 	else
+	    terminate_all
 	    restart_all
 	fi
     elif [[ "${command}" = "terminate" ]]; then
