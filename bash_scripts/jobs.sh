@@ -90,7 +90,12 @@ terminate_all(){
     ###
     # Terminate all applications
     ###
-    terminate_with_key "google-chrome"
+    terminate_with_key "chrome"
+    terminate_with_key "code"
+    terminate_with_key "konqueror"
+    terminate_with_key "shutter"
+    terminate_with_key "okular"
+    terminate_with_key "audio-recorder"
     return 0
 }
 
@@ -122,10 +127,10 @@ terminate_with_key()
     #   $1: key word
     ###
     [[ -n $1 ]] || { cecho "${BAD}" "need to have a key word"; exit 1; }
-    local return_values=()
+    local key="$1"
     util_read_job_info_from_ps "${key}"
     for job_id in ${job_ids[@]}; do
-        [[ ${job_id} =~ ^[0-9]+$ ]] && echo "kill ${job_id}" || { cecho "${BAD}" "previous function doesn't return integar(job id)"; exit 1; }
+        [[ ${job_id} =~ ^[0-9]+$ ]] && eval "kill ${job_id}" || { cecho "${BAD}" "previous function doesn't return integar(${job_id})"; exit 1; }
     done
     return 0
 }
