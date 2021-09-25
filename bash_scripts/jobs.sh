@@ -9,6 +9,7 @@ dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
 # source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
 global_utilities_file="${UTILITIES_DIR}/bash_scripts/utilities.sh"
 [[ -e ${global_utilities_file} ]] && source "${global_utilities_file}" || source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
+host_name=$(hostname)
 
 usage(){
   # usage of this script
@@ -166,6 +167,14 @@ journal()
     eval "vim ${journal_full_path}"
 }
 
+sync_with_remote()
+{
+    ###
+    # sync with ucd
+    ###
+    eval "Usr_server trans ucd"
+}
+
 main(){
     ###
     # main function
@@ -178,13 +187,21 @@ main(){
         # Restart all applications
         help_message="Help message for \"restart\" (todo)"
 	if [[ -n $1 ]]; then
-            [[ $1 =~ ^[0-9]+$ ]] && { terminate_all; restart_all "$1"; } || { echo "${help_message}"; exit 1; }
+            if [[ $1 =~ ^[0-9]+$ ]]; then
+	        terminate_all
+		sync_with_remote
+		restart_all "$1"
+	    else
+		echo "${help_message}"; exit 1; 
+	    fi
 	else
 	    terminate_all
+	    sync_with_remote
 	    restart_all
 	fi
     elif [[ "${command}" = "terminate" ]]; then
         terminate_all
+	sync_with_remote
     elif [[ "${command}" = "edit" ]]; then
         [[ -n "${1}" ]] || { cecho "${BAD}" "no file type given for command \"edit\" ($2)"; exit 1; }
         edit "$1"
