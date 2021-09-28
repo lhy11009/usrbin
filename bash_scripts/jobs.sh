@@ -34,6 +34,9 @@ Example Usage:
 
 }
 
+# default values
+
+if_sync="0"
 
 parse_options(){
     ###
@@ -52,6 +55,9 @@ parse_options(){
         ;;
         -a=*|--appendix=*)
           appendix="${param#*=}"
+        ;;
+        -s)
+          if_sync="1"
         ;;
       esac
       shift
@@ -186,22 +192,22 @@ main(){
     elif [[ "${command}" = "restart" ]]; then
         # Restart all applications
         help_message="Help message for \"restart\" (todo)"
-	if [[ -n $1 ]]; then
-            if [[ $1 =~ ^[0-9]+$ ]]; then
+	if [[ -n $1 && $1 =~ ^[0-9]+$ ]]; then
+		job_index="$1"
+		parse_options $@
 	        terminate_all
-		sync_with_remote
-		restart_all "$1"
-	    else
-		echo "${help_message}"; exit 1; 
-	    fi
+		[[ ${if_sync} = "1" ]] && sync_with_remote
+		restart_all "${job_index}"
 	else
+	    parse_options $@
 	    terminate_all
-	    sync_with_remote
+	    [[ ${if_sync} = "1" ]] && sync_with_remote
 	    restart_all
 	fi
     elif [[ "${command}" = "terminate" ]]; then
+	parse_options $@
         terminate_all
-	sync_with_remote
+	[[ ${if_sync} = "1" ]] && sync_with_remote
     elif [[ "${command}" = "edit" ]]; then
         [[ -n "${1}" ]] || { cecho "${BAD}" "no file type given for command \"edit\" ($2)"; exit 1; }
         edit "$1"
