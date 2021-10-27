@@ -81,7 +81,7 @@ restart_all(){
     file_path="${job_list_path}${1}"
     [[ -e "${file_path}" ]] || { cecho "${BAD}" "file doesn't exist ($file_path)"; exit 1; }
     # open list of command
-        eval "vim ${file_path}"
+    #    eval "vim ${file_path}"
     # execute list of command
     restart_with_key "${file_path}" "calendar"
     restart_with_key "${file_path}" "mail"
