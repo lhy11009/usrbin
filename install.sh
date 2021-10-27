@@ -123,7 +123,9 @@ install_utilities(){
     ###
     local utilities_dir="${USRBIN_DIR}/utilities"
     if [[ -d ${utilities_dir} ]]; then
-        echo "0"
+        cd "${utilities_dir}"
+        eval "git fetch origin"
+        eval "git pull origin master"
     else
         eval "mkdir ${utilities_dir}"
         cd "${utilities_dir}"
