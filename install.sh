@@ -116,6 +116,25 @@ install_sh(){
     return 0
 }
 
+install_utilities(){
+    ###
+    # install utilities
+    # todo
+    ###
+    local utilities_dir="${USRBIN_DIR}/utilities"
+    if [[ -d ${utilities_dir} ]]; then
+        echo "0"
+    else
+        eval "mkdir ${utilities_dir}"
+        cd "${utilities_dir}"
+        eval "git init"
+        eval "git remote add origin https://github.com/lhy11009/Utilities"
+        eval "git pull origin master"
+    fi
+    # add git dir
+    return 0
+}
+
 install_3rd(){
     ###
     # future
@@ -174,6 +193,11 @@ main(){
         ##
         # create alias
         install
+    elif [[ "$1" = "install_utilities" ]]; then
+        ##
+        # Install utility
+        ##
+        install_utilities
     elif [[ "$1" = "clean" ]]; then
         # clean previous installation
         clean

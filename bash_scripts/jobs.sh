@@ -7,8 +7,8 @@
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}"  )" >/dev/null 2>&1 && pwd  )"
 # source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
-global_utilities_file="${UTILITIES_DIR}/bash_scripts/utilities.sh"
-[[ -e ${global_utilities_file} ]] && source "${global_utilities_file}" || source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
+utilities_file="${USRBIN_DIR}/utilities/bash_scripts/utilities.sh"
+[[ -e ${utilities_file} ]] && source "${utilities_file}" || source "${USRBIN_DIR}/bash_scripts/utilities.sh"  # use utility functions
 host_name=$(hostname)
 
 usage(){
