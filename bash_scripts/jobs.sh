@@ -133,13 +133,28 @@ terminate_with_key()
     # Inputs:
     #   $1: key word
     ###
-    [[ -n $1 ]] || { cecho "${BAD}" "need to have a key word"; exit 1; }
+    [[ -n $1 ]] && echo "terminating $1"|| { cecho "${BAD}" "need to have a key word"; exit 1; }
     local key="$1"
     util_read_job_info_from_ps "${key}"
     for job_id in ${job_ids[@]}; do
-        [[ ${job_id} =~ ^[0-9]+$ ]] && eval "kill ${job_id}" || { cecho "${BAD}" "previous function doesn't return integar(${job_id})"; exit 1; }
+        if [[ ${job_id} =~ ^[0-9]+$ ]]; then
+            check_id "${job_id}"
+            (( $? == 1 )) && eval "kill ${job_id}"
+        else
+            cecho "${BAD}" "previous function doesn't return integar(${job_id})"; exit 1;
+        fi
     done
     return 0
+}
+
+check_id()
+{
+    ###
+    # check that a job id relates to a job
+    #   $1: job id
+    ###
+    local output=$(eval "ps -eo pid | grep $1")
+    [[ -n "$output" ]] && return 1 || return 0
 }
 
 edit()
