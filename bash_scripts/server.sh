@@ -96,6 +96,12 @@ transfer_all(){
     for dirname in ${dir_names[@]}; do
         local_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $LOCAL_FILE_LIST")
         remote_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $remote_file_list")
+	[[ -n ${local_dir} ]] || { cecho "${BAD}" \
+		"local_dir is not found for dirname (${dirname}), check $LOCAL_FILE_LIST";\
+	       	exit 1; }
+	[[ -n ${remote_dir} ]] || { cecho "${BAD}" \
+		"remote_dir is not found for dirname (${dirname}), check $remote_file_list";\
+	       	exit 1; }
         if [[ "$2" = "0" ]]; then
             # remote to local
             local _source="${server_uname_addr}:${remote_dir}"
