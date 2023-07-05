@@ -12,14 +12,16 @@
 #    show available options:
 #
 #    connect to server:
-#        ./bash_scripts/server_new.sh connect ucd
+#        Usr_server connect ucd
 #    show available options:
-#       ./bash_scripts/server_new.sh show_available
+#        Usr_server show_available
 #    transfer files with server:
-#       ./bash_scripts/server_new.sh trans ucd -d 1
+#        Usr_server trans ucd -d 1
 #           -d: 0 (both direction)
 #               1 (from server)
 #               TODO: --delete doesn't work
+#    connect vpn to ucdavis:
+#       Usr_server ucdavis_vpn
 #
 ########################################################
 ########################
@@ -126,6 +128,13 @@ transfer_all(){
     # TODO: modify from server_trans.sh
 }
 
+ucdavis_connect(){
+	cd "${USRBIN_DIR}/etc/openvpn"
+	[[ -e "profile_ucdavis.ovpn" ]] || { cecho "${BAD}" \
+		"profile_ucdavis.ovpn doesn't exist, please configure the openvpn first";\
+	       	exit 1; }
+	eval "sudo openvpn --config profile_ucdavis.ovpn --auth-retry interact"
+}
 
 main(){
     ###
@@ -147,6 +156,8 @@ main(){
         server_name="$1"; shift
         parse_options "$@"
         transfer_all "$server_name" "$data_direction"
+    elif [[ "$1" = "ucdavis_vpn" ]]; then
+	ucdavis_connect
     else
 	    cecho "${BAD}" "option ${1} is not valid\n"
     fi
