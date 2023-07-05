@@ -1,7 +1,0 @@
-[user]
-	email = hylli@ucdavis.edu
-	name = Haoyuan Li
-[credential]
-	helper = store
-[merge]
-	conflictstyle = diff3
