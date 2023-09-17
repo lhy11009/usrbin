@@ -11,3 +11,24 @@ authored by: lhy11009
 These are useful system files.
 
 ssh\_config: an example of the .ssh/config file.
+
+#### bash scripts
+
+##### server.sh
+
+_sync files on local and remote machine
+
+In the example, the "TwoDSubduction" is a name for the project, while "EBA\_CDPT9" is a subdirectory I want to sync.
+
+    Usr_server sync ucd TwoDSubduction EBA_CDPT9
+
+Then the option all will sync everything.
+This is the command to use when syncing with back up server
+    
+    Usr_server sync ucd TwoDSubduction all
+
+Adding another flag 1 will exclude the output files from ASPECT, VISIT, etc. from the remote.
+But it will sync every modification from the local machine.
+This is the togo command for syncing the project directory between the workstation and local machines.
+
+    Usr_server sync ucd TwoDSubduction all 1

@@ -78,6 +78,77 @@ show_available(){
 }
 
 
+transfer_object(){
+    ###
+    # transfer one file/directory with a server
+    # Inputs:
+    #   $1: name of server
+    #   $2: name of the project
+    #   $3: name of a directory
+    #   $4: include all files - 0, only case files - 1
+    ###
+    local server_uname_addr="$1"
+    local remote_file_list="${USRBIN_DIR}/etc/server/$1_file_list"
+    [[ -n "${server_uname_addr}" ]] || { cecho "${BAD}" "no info recorded with server: $1"; exit 1; }
+    local project="$2"
+    local dir_name="$3"
+    [[ -n "$4" ]] && { file_type="$4"; } || { file_type=0; }
+    
+    # get the path of directory
+    # if a "all" is given to "$3", then we sync everything 
+    local_dir=$(eval "awk '{ if(\$1 == \"${project}\") print \$2;}' $LOCAL_FILE_LIST")
+    [[ -n ${local_dir} ]] || { cecho "${BAD}" \
+	"local_dir is not found for dirname (${project}), check $LOCAL_FILE_LIST";\
+	       	exit 1; }
+    remote_dir=$(eval "awk '{ if(\$1 == \"${project}\") print \$2;}' $remote_file_list")
+    [[ -n ${remote_dir} ]] || { cecho "${BAD}" \
+        "remote_dir is not found for dirname (${project}), check $remote_file_list";\
+	        exit 1; }
+    if [[ ${dir_name} = "all" ]]; then
+        local_subdir="${local_dir}"
+        remote_subdir="${remote_dir}"
+    else
+        local_subdir="${local_dir}/${dir_name}"
+        remote_subdir="${remote_dir}/${dir_name}"
+    fi
+           
+    # remote to local
+    # -f'- output*' means exclude the output directory
+    # For file_type 0, sync everything from remote to local
+    # For file_type 1, exclude output file from ASPECT, visit, etc.
+    # Also take folder rules set up by the .rsync-filter files into
+    # consideration by add flag '-FF'.
+    local flags; local _source; local target
+    
+    _source="${server_uname_addr}:${remote_subdir}"
+    target="${local_subdir}"
+    
+    if [[  ${file_type} == 1 ]]; then
+        flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- img/*' -f '- *.std*' -f '- *tar*'"
+    else
+        flags="-avuh --progress"
+    fi
+
+    echo "rsync ${flags} ${_source}/* ${target}/"
+    eval "rsync ${flags} ${_source}/* ${target}/"
+    
+    # local to remote
+    # For file_type 0, sync everything from local to remote
+    # For file_type 1, sync everything from local to remote
+    _source="${local_subdir}"
+    target="${server_uname_addr}:${remote_subdir}"
+    
+    if [[  ${file_type} == 1 ]]; then
+        flags="-avuh --progress"
+    else
+        flags="-avuh --progress"
+    fi
+
+    echo "rsync ${flags} ${_source}/* ${target}/"
+    eval "rsync ${flags} ${_source}/* ${target}/"
+}
+
+
 transfer_all(){
     ###
     # transfer file with a server
@@ -86,14 +157,16 @@ transfer_all(){
     #   $2: data direction (0, 1, 2)
     ###
     # read server info
-    local server_uname_addr=$(eval "awk '{ if(\$1 == \"${1}\") print \$2;}' $SERVER_LIST")
+    # This only works if the host name is set up correctly in the .ssh/config file
+    local server_uname_addr="$1"
+    # local server_uname_addr=$(eval "awk '{ if(\$1 == \"${1}\") print \$2;}' $SERVER_LIST")
     [[ -n "${server_uname_addr}" ]] || { cecho "${BAD}" "no info recorded with server: $1"; exit 1; }
     # read local file list
-    local dir_names=($(eval "awk '{print \$1}' $LOCAL_FILE_LIST"))
+    local dir_names=(paper subject shared)
     local local_dirs=($(eval "awk '{print \$2}' $LOCAL_FILE_LIST"))
     # transfer
     local remote_file_list="${USRBIN_DIR}/etc/server/$1_file_list"
-    local flags="-avur --progress"
+    local flags="-avuh --progress"
     local del_flag="--delete --force"  # delete extranous file and folderes in receiver
     for dirname in ${dir_names[@]}; do
         local_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $LOCAL_FILE_LIST")
@@ -128,6 +201,37 @@ transfer_all(){
     # TODO: modify from server_trans.sh
 }
 
+clean_shared_folder(){
+    ####
+    # Delete the contents in the shared folder. First the local folder,
+    # then the remote folder
+    #   $1: name of server
+    ####
+    # This only works if the host name is set up correctly in the .ssh/config file
+    local dirname="shared"
+    local server_uname_addr="$1"
+    local remote_file_list="${USRBIN_DIR}/etc/server/$1_file_list"
+    [[ -e "${remote_file_list}" ]] || { cecho "${BAD}" \
+	    "remote_file_list(${remote_file_list}) doesn't exist";\
+	       	exit 1; }
+    local flags="-avuh --progress --delete"
+
+    local local_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $LOCAL_FILE_LIST")
+    echo "local_dir: ${local_dir}" # debug
+    local remote_dir=$(eval "awk '{ if(\$1 == \"${dirname}\") print \$2;}' $remote_file_list")
+    echo "remote_dir: ${remote_dir}" # debug
+
+    # clean contents in local dir
+    echo "rm -rf ${local_dir}/*"
+    eval "rm -rf ${local_dir}/*"
+
+    # clean content in remote dir
+    local _source="${local_dir}"
+    local target="${server_uname_addr}:${remote_dir}"
+    echo "rsync ${flags} ${del_flag} ${_source}/ ${target}/" # screen output
+    eval "rsync ${flags} ${del_flag} ${_source}/ ${target}/"
+}
+
 ucdavis_connect(){
 	cd "${USRBIN_DIR}/etc/openvpn"
 	[[ -e "profile_ucdavis.ovpn" ]] || { cecho "${BAD}" \
@@ -156,6 +260,19 @@ main(){
         server_name="$1"; shift
         parse_options "$@"
         transfer_all "$server_name" "$data_direction"
+    elif [[ "$1" = "clean_shared" ]]; then
+	shift
+        server_name="$1"
+	echo "option clean_shared" # debug
+	clean_shared_folder "$server_name"
+	
+    elif [[ "$1" = "sync" ]]; then
+	shift
+        local server_name="$1"; shift
+	local project="$1"; shift
+	local subdir="$1"; shift
+	local file_type="$1"; shift
+	transfer_object "${server_name}" "${project}" "${subdir}" "${file_type}"
     elif [[ "$1" = "ucdavis_vpn" ]]; then
 	ucdavis_connect
     else
