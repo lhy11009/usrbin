@@ -116,6 +116,8 @@ transfer_object(){
     # -f'- output*' means exclude the output directory
     # For file_type 0, sync everything from remote to local
     # For file_type 1, exclude output file from ASPECT, visit, etc.
+    # For file_type 2, exclude output file from ASPECT, visit, etc.
+    # but include the files in img
     # Also take folder rules set up by the .rsync-filter files into
     # consideration by add flag '-FF'.
     local flags; local _source; local target
@@ -123,8 +125,12 @@ transfer_object(){
     _source="${server_uname_addr}:${remote_subdir}"
     target="${local_subdir}"
     
+    exclude_aspect_flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- *.std*' -f '- *tar*'"
     if [[  ${file_type} == 1 ]]; then
-        flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- img/*' -f '- *.std*' -f '- *tar*'"
+        # flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- img/*' -f '- *.std*' -f '- *tar*'"
+	flags="${exclude_aspect_flags} -f '- img/*'"
+    elif [[  ${file_type} == 2 ]]; then
+	flags="${exclude_aspect_flags}"
     else
         flags="-avuh --progress"
     fi

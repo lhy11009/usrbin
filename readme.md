@@ -32,3 +32,8 @@ But it will sync every modification from the local machine.
 This is the togo command for syncing the project directory between the workstation and local machines.
 
     Usr_server sync ucd TwoDSubduction all 1
+
+Flag 2 will also exclude the outputs but include the folder img
+This is command to use when working on a windows machine, to sync all the figures produced on the server.
+
+    Usr_server sync ucd TwoDSubduction {case_name} 2
