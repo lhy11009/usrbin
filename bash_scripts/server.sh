@@ -120,38 +120,54 @@ transfer_object(){
     # but include the files in img
     # Also take folder rules set up by the .rsync-filter files into
     # consideration by add flag '-FF'.
-    local flags; local _source; local target
+    local flags; local _source; local target; local parental_dir;
     
     _source="${server_uname_addr}:${remote_subdir}"
     target="${local_subdir}"
-    
+    parental_dir=$(dirname "${target}")
+
     exclude_aspect_flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- *.std*' -f '- *tar*'"
+    exclude_restart_flag="-avuh --exclude=*restart*"
     if [[  ${file_type} == 1 ]]; then
         # flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- img/*' -f '- *.std*' -f '- *tar*'"
 	flags="${exclude_aspect_flags} -f '- img/*'"
+    	echo "rsync ${flags} ${_source}/* ${target}/"
+    	eval "rsync ${flags} ${_source}/* ${target}/"
     elif [[  ${file_type} == 2 ]]; then
 	flags="${exclude_aspect_flags}"
+    	echo "rsync ${flags} ${_source}/* ${target}/"
+    	eval "rsync ${flags} ${_source}/* ${target}/"
+    elif [[  ${file_type} == 3 ]]; then
+	flags="${exclude_restart_flag}"
+    	echo "rsync ${flags} ${_source} ${parental_dir}/"
+    	eval "rsync ${flags} ${_source} ${parental_dir}/"
     else
         flags="-avuh --progress"
+    	echo "rsync ${flags} ${_source} ${parental_dir}/"
+    	eval "rsync ${flags} ${_source} ${parental_dir}/"
     fi
 
-    echo "rsync ${flags} ${_source}/* ${target}/"
-    eval "rsync ${flags} ${_source}/* ${target}/"
     
     # local to remote
     # For file_type 0, sync everything from local to remote
     # For file_type 1, sync everything from local to remote
     _source="${local_subdir}"
     target="${server_uname_addr}:${remote_subdir}"
+    parental_dir=$(dirname "${target}")
     
     if [[  ${file_type} == 1 ]]; then
         flags="-avuh --progress"
+    	echo "rsync ${flags} ${_source}/* ${target}/"
+    	eval "rsync ${flags} ${_source}/* ${target}/"
+    elif [[  ${file_type} == 2 ]]; then
+        flags="-avuh --progress"
+    	echo "rsync ${flags} ${_source}/* ${target}/"
+    	eval "rsync ${flags} ${_source}/* ${target}/"
     else
         flags="-avuh --progress"
+    	echo "rsync ${flags} ${_source} ${parental_dir}/"
+    	eval "rsync ${flags} ${_source} ${parental_dir}/"
     fi
-
-    echo "rsync ${flags} ${_source}/* ${target}/"
-    eval "rsync ${flags} ${_source}/* ${target}/"
 }
 
 

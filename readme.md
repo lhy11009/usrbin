@@ -16,7 +16,7 @@ ssh\_config: an example of the .ssh/config file.
 
 #### server.sh
 
-_sync files on local and remote machine
+1. sync files on local and remote machine
 
 In the example, the "TwoDSubduction" is a name for the project, while "EBA\_CDPT9" is a subdirectory I want to sync.
 
@@ -37,3 +37,8 @@ Flag 2 will also exclude the outputs but include the folder img
 This is command to use when working on a windows machine, to sync all the figures produced on the server.
 
     Usr_server sync ucd TwoDSubduction {case_name} 2
+
+Flag 3 will only sync from server and exclude all the restart file, thus is used for copying case data from server.
+    
+    Usr_server sync stampede2 ThDSubduction {case_name} 3
+    Usr_server sync frontera ThDSubduction {case_name} 3
