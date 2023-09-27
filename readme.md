@@ -39,6 +39,7 @@ This is command to use when working on a windows machine, to sync all the figure
     Usr_server sync ucd TwoDSubduction {case_name} 2
 
 Flag 3 will only sync from server and exclude all the restart file, thus is used for copying case data from server.
-    
+
+    Usr_server sync peloton TwoDSubduction {case_name} 3
     Usr_server sync stampede2 ThDSubduction {case_name} 3
     Usr_server sync frontera ThDSubduction {case_name} 3
