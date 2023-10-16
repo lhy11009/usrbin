@@ -163,6 +163,8 @@ transfer_object(){
         flags="-avuh --progress"
     	echo "rsync ${flags} ${_source}/* ${target}/"
     	eval "rsync ${flags} ${_source}/* ${target}/"
+    elif [[  ${file_type} == 3 ]]; then
+	echo "skip syncing in the other direction"
     else
         flags="-avuh --progress"
     	echo "rsync ${flags} ${_source} ${parental_dir}/"
