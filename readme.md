@@ -44,3 +44,7 @@ Flag 3 will only sync from server and exclude all the restart file, thus is used
     Usr_server sync peloton EntropySub {case_name} 3
     Usr_server sync stampede2 ThDSubduction {case_name} 3
     Usr_server sync frontera ThDSubduction {case_name} 3
+
+Flag 4 will only sync from server and include all the restart file thus is used for copying case data completely from server.
+    
+    Usr_server sync stampede2 ThDSubduction {case_name} 4

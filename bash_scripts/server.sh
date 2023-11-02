@@ -121,6 +121,7 @@ transfer_object(){
     # Also take folder rules set up by the .rsync-filter files into
     # consideration by add flag '-FF'.
     local flags; local _source; local target; local parental_dir;
+    local normal_flag
     
     _source="${server_uname_addr}:${remote_subdir}"
     target="${local_subdir}"
@@ -128,6 +129,7 @@ transfer_object(){
 
     exclude_aspect_flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- *.std*' -f '- *tar*'"
     exclude_restart_flag="-avuh --exclude=*restart*"
+    normal_flag="-avuh --progress"
     if [[  ${file_type} == 1 ]]; then
         # flags="-avuhFF --progress -f'- *output*' -f '- snap_shot*' -f '- vtk_output*' -f'- *visit*' -f'- *paraview*' -f '- img/*' -f '- *.std*' -f '- *tar*'"
 	flags="${exclude_aspect_flags} -f '- img/*'"
@@ -139,6 +141,10 @@ transfer_object(){
     	eval "rsync ${flags} ${_source}/* ${target}/"
     elif [[  ${file_type} == 3 ]]; then
 	flags="${exclude_restart_flag}"
+    	echo "rsync ${flags} ${_source} ${parental_dir}/"
+    	eval "rsync ${flags} ${_source} ${parental_dir}/"
+    elif [[  ${file_type} == 4 ]]; then
+	flags="${normal_flag}"
     	echo "rsync ${flags} ${_source} ${parental_dir}/"
     	eval "rsync ${flags} ${_source} ${parental_dir}/"
     else
@@ -164,6 +170,8 @@ transfer_object(){
     	echo "rsync ${flags} ${_source}/* ${target}/"
     	eval "rsync ${flags} ${_source}/* ${target}/"
     elif [[  ${file_type} == 3 ]]; then
+	echo "skip syncing in the other direction"
+    elif [[  ${file_type} == 4 ]]; then
 	echo "skip syncing in the other direction"
     else
         flags="-avuh --progress"
