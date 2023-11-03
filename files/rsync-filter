@@ -1,0 +1,9 @@
+- *output*
+- *restart*
+- snap_shot
+- img
+- *.stdout
+- *.stderr 
+- .git
+- *.gz
+- *.zip

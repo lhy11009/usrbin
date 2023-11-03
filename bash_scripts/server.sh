@@ -272,6 +272,22 @@ ucdavis_connect(){
 	eval "sudo openvpn --config profile_ucdavis.ovpn --auth-retry interact"
 }
 
+# todo_rsync
+distribute_rsync-filter(){
+    local _dir="$1"
+    local rf_file_std="${USRBIN_DIR}/files/rsync-filter"
+    [[ -e "${rf_file_std}" ]] || { cecho "${BAD}" "${rf_file_std} doesn't exist."; exit 1;}
+    for subdir in "${_dir}"/*; do
+        if [[ -d "${subdir}" ]]; then
+            rf_file="${subdir}/.rsync-filter"
+            if ! [[ -e "${rf_file}" ]]; then
+                cp "${rf_file_std}" "${rf_file}"
+                echo "File generated: ${rf_file}"
+            fi
+        fi
+    done
+}
+
 main(){
     ###
     # main function
@@ -307,6 +323,10 @@ main(){
 	transfer_object "${server_name}" "${project}" "${subdir}" "${file_type}"
     elif [[ "$1" = "ucdavis_vpn" ]]; then
 	ucdavis_connect
+    elif [[ "$1" = "distribute_rsync-filter" ]]; then
+        shift
+        local directory="$1"
+        distribute_rsync-filter "$1"
     else
 	    cecho "${BAD}" "option ${1} is not valid\n"
     fi

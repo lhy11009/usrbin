@@ -48,3 +48,7 @@ Flag 3 will only sync from server and exclude all the restart file, thus is used
 Flag 4 will only sync from server and include all the restart file thus is used for copying case data completely from server.
     
     Usr_server sync stampede2 ThDSubduction {case_name} 4
+
+2. add .rsync-filter files to all the directories
+
+    Usr_server distribute_rsync-filter /mnt/lochy0/ASPECT_DATA/TwoDSubduction
