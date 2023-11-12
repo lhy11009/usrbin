@@ -4,6 +4,18 @@ This is a summary of useful scripts and files on Linux
 
 authored by: lhy11009
 
+### Installation
+
+#### Install usrbin
+
+Run command
+
+    ./install.sh execute
+
+Then add options to .bashrc
+
+#### update ssh configuration
+
 ### files
 
 ##### system\_files
