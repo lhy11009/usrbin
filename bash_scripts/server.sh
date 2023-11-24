@@ -162,7 +162,7 @@ transfer_object(){
     parental_dir=$(dirname "${target}")
     
     if [[  ${file_type} == 1 ]]; then
-        flags="-avuh --progress"
+	flags="${exclude_aspect_flags} -f '- img/*'"
     	echo "rsync ${flags} ${_source}/* ${target}/"
     	eval "rsync ${flags} ${_source}/* ${target}/"
     elif [[  ${file_type} == 2 ]]; then
