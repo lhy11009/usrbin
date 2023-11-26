@@ -32,7 +32,8 @@ ssh\_config: an example of the .ssh/config file.
 
 In the example, the "TwoDSubduction" is a name for the project, while "EBA\_CDPT9" is a subdirectory I want to sync.
 
-    Usr_server sync ucd TwoDSubduction EBA_CDPT9
+    Usr_server sync peloton TwoDSubduction {case_name}
+    Usr_server sync peloton EntropySub {case_name}
 
 Then the option all will sync everything.
 This is the command to use when syncing with back up server
